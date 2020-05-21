@@ -1,14 +1,15 @@
-version: 2
+version: 2.1
 workflows:
-  version: 2
   test:
     jobs:
-      - test-7.0.1
-      - test-8.0.1
+      - test:
+          matrix:
+            parameters:
+              keycloak-version: ['7.0.1', '8.0.1']
   release:
     jobs:
       - test:
-          keycloak-version: ['7.0.1', '8.0.1']
+          keycloak-version: '8.0.1'
           filters:
             tags:
               only: /\d+\.\d+\.\d+(-rc.\d+)?/
@@ -16,12 +17,7 @@ workflows:
               ignore: /.*/
       - build-and-release:
           requires:
-            - test-8.0.1
-          filters:
-            tags:
-              only: /\d+\.\d+\.\d+(-rc.\d+)?/
-            branches:
-              ignore: /.*/
+            - test
 
 defaults:
   go_image: &go_image
@@ -29,6 +25,9 @@ defaults:
 
 jobs:
   test:
+    parameters:
+      keycloak-version:
+        type: string
     docker:
       - <<: *go_image
       - image: jboss/keycloak:<< parameters.keycloak-version >>
