@@ -5,7 +5,7 @@ workflows:
       - test:
           matrix:
             parameters:
-              keycloak-version: ['7.0.1', '8.0.1', '10.0.1']
+              keycloak-version: ['7.0.1', '8.0.2', '9.0.3', '10.0.1']
   release:
     jobs:
       - test:
@@ -45,6 +45,8 @@ jobs:
           keys:
             - go-cache-{{ checksum "go.sum" }}
       - run: go mod download
+      - run: go get github.com/jstemmer/go-junit-report
+      - run: mkdir $TEST_RESULTS
       - save_cache:
           key: go-cache-{{ checksum "go.sum" }}
           paths:
@@ -53,7 +55,10 @@ jobs:
           command: |
             ./scripts/wait-for-local-keycloak.sh
             ./scripts/create-terraform-client.sh
-            make testacc
+            trap "go-junit-report <${TEST_RESULTS}/go-test.out > ${TEST_RESULTS}/go-test-report.xml" EXIT
+            make testacc | tee ${TEST_RESULTS}/go-test.out
+      - store_test_results:
+          path: /tmp/test-results
     environment:
       GO111MODULE: "on"
       KEYCLOAK_CLIENT_ID: "terraform"
@@ -63,6 +68,7 @@ jobs:
       KEYCLOAK_REALM: "master"
       KEYCLOAK_TEST_PASSWORD_GRANT: "true"
       KEYCLOAK_VERSION: "<< parameters.keycloak-version >>"
+      TEST_RESULTS: /tmp/test-results
 
 
   build-and-release:
