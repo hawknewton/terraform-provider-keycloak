@@ -32,12 +32,12 @@ jobs:
     docker:
       - <<: *go_image
       - image: jboss/keycloak:<< parameters.keycloak-version >>
-          command: ["-b", "0.0.0.0", "-Dkeycloak.profile.feature.upload_scripts=enabled"]
-          environment:
-            DB_VENDOR: H2
-            KEYCLOAK_LOGLEVEL: DEBUG
-            KEYCLOAK_USER: keycloak
-            KEYCLOAK_PASSWORD: password
+        command: ["-b", "0.0.0.0", "-Dkeycloak.profile.feature.upload_scripts=enabled"]
+        environment:
+          DB_VENDOR: H2
+          KEYCLOAK_LOGLEVEL: DEBUG
+          KEYCLOAK_USER: keycloak
+          KEYCLOAK_PASSWORD: password
 
     working_directory: /go/src/github.com/mrparkers/terraform-provider-keycloak
     steps:
