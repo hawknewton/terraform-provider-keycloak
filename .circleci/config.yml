@@ -5,7 +5,7 @@ workflows:
       - test:
           matrix:
             parameters:
-              keycloak-version: ['7.0.1', '8.0.1']
+              keycloak-version: ['7.0.1', '8.0.1', '10.0.1']
   release:
     jobs:
       - test:
